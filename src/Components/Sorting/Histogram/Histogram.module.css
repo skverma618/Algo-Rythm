@@ -1,0 +1,14 @@
+.arraycontainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: flex-end;
+    height: 90vh; 
+    width: calc(82% - 250px);
+}
+
+.arraybar {
+    background-color: turquoise;
+    margin: 0 1px;
+    display: inline;
+}

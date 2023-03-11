@@ -1,0 +1,27 @@
+.grid {
+  margin-left: 48px;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+.algo_btn {
+  padding: 6px 24px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.visulize_btn {
+  color: #ffffff;
+  font-size: 22px;
+  padding: 10px 12px;
+  background-color: #1abc9c;
+  border: #1abc9c;
+  border-radius: 10px;
+}

@@ -1,0 +1,30 @@
+.cell {
+  width: 66px;
+  height: 66px;
+  font-size: 20px;
+  text-align: center;
+  padding: 0px;
+  border: 1px solid black;
+}
+.sudo_container {
+  width: 60vw;
+}
+table {
+  border-collapse: collapse;
+  border: 3.6px solid rgb(208, 208, 208);
+  margin-left: auto;
+  margin-right: auto;
+}
+td {
+  padding: 0;
+}
+
+.bold_bottom {
+  border-bottom: 1.8px solid black;
+}
+.bold_right {
+  border-right: 1.8px solid black;
+}
+.fixed {
+  background-color: #ffa87a;
+}
