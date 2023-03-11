@@ -2,12 +2,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-AlgoRythm is an algorithm visualization web app that makes it easier to understand various algorithms by their visual
-representations.
-• It supports the visualization of algorithms like:
-1. Graph Traversals: BFS, DFS, DIJKSTRA; (addition of weights and blocks is also supported)
-2. SORTING algorithms: Quick Sort, Merge Sort, Selection sort, Insertion sort, Bubble sort
-3. Backtracking algorithms: N-Queens, Sudoku solve
+ 
 ## Available Scripts
 
 In the project directory, you can run:
