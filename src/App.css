@@ -1,4 +1,70 @@
 .App {
-  background-color: rgb(210 219 221);
-  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--background) 0%, var(--secondary-100) 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Global layout improvements */
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+/* Smooth page transitions */
+.page-transition {
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+/* Loading states */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-secondary);
+}
+
+.loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-200);
+  border-top: 2px solid var(--primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: var(--space-2);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error states */
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--error-600);
+  background-color: var(--error-50);
+  border: 1px solid var(--error-200);
+  border-radius: var(--radius-lg);
+  margin: var(--space-4);
+  padding: var(--space-6);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
 }
