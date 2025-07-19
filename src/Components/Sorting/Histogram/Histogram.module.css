@@ -1,14 +1,627 @@
-.arraycontainer {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    align-items: flex-end;
-    height: 90vh; 
-    width: calc(82% - 250px);
+.histogram {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--background) 0%, var(--secondary-50) 100%);
+  min-height: calc(100vh - 70px);
+  position: relative;
+  overflow: hidden;
 }
 
-.arraybar {
-    background-color: turquoise;
-    margin: 0 1px;
-    display: inline;
+.histogram::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23e2e8f0" fill-opacity="0.03"><circle cx="30" cy="30" r="1.5"/></g></svg>');
+  pointer-events: none;
+}
+
+.arrayContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-8);
+  background: var(--surface);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+  min-height: 400px;
+  max-width: 90vw;
+  overflow-x: auto;
+  animation: scaleIn var(--transition-slow) ease-out;
+}
+
+.arrayContainer::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+
+.arrayBar {
+  min-width: 8px;
+  max-width: 20px;
+  background: linear-gradient(180deg, var(--primary-400), var(--primary-600));
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: all var(--transition-fast);
+  position: relative;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--primary-300);
+}
+
+.arrayBar:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(180deg, var(--accent-400), var(--accent-600));
+  border-color: var(--accent-300);
+}
+
+.arrayBar::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  right: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-300), var(--accent-300));
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.arrayBar:hover::after {
+  opacity: 1;
+}
+
+/* Sorting animation states */
+.arrayBar.comparing {
+  background: linear-gradient(180deg, var(--warning-400), var(--warning-600));
+  border-color: var(--warning-300);
+  animation: compareAnimation 0.6s ease-in-out;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px var(--warning-300);
+}
+
+.arrayBar.swapping {
+  background: linear-gradient(180deg, var(--error-400), var(--error-600));
+  border-color: var(--error-300);
+  animation: swapAnimation 0.8s ease-in-out;
+  box-shadow: 0 0 20px var(--error-300);
+}
+
+.arrayBar.sorted {
+  background: linear-gradient(180deg, var(--success-400), var(--success-600));
+  border-color: var(--success-300);
+  animation: sortedAnimation 1s ease-out;
+  box-shadow: 0 0 12px var(--success-300);
+}
+
+.arrayBar.pivot {
+  background: linear-gradient(180deg, var(--accent-400), var(--accent-600));
+  border-color: var(--accent-300);
+  animation: pivotAnimation 1.5s ease-in-out infinite;
+  box-shadow: 0 0 18px var(--accent-300);
+}
+
+.arrayBar.current {
+  background: linear-gradient(180deg, var(--secondary-600), var(--secondary-800));
+  border-color: var(--secondary-400);
+  animation: currentAnimation 1s ease-in-out infinite;
+  box-shadow: 0 0 15px var(--secondary-400);
+}
+
+/* Control overlay */
+.controlOverlay {
+  position: absolute;
+  top: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3) var(--space-6);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  animation: slideInFromTop var(--transition-normal) ease-out;
+}
+
+.controlContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.arrayInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.infoLabel {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.infoValue {
+  padding: var(--space-1) var(--space-2);
+  background: var(--primary-100);
+  color: var(--primary-700);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.legendColor {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.legendColor.default {
+  background: linear-gradient(180deg, var(--primary-400), var(--primary-600));
+}
+
+.legendColor.comparing {
+  background: linear-gradient(180deg, var(--warning-400), var(--warning-600));
+}
+
+.legendColor.swapping {
+  background: linear-gradient(180deg, var(--error-400), var(--error-600));
+}
+
+.legendColor.sorted {
+  background: linear-gradient(180deg, var(--success-400), var(--success-600));
+}
+
+.legendColor.pivot {
+  background: linear-gradient(180deg, var(--accent-400), var(--accent-600));
+}
+
+.legendLabel {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Statistics panel */
+.statsPanel {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  animation: slideInFromBottom var(--transition-normal) ease-out;
+  min-width: 200px;
+}
+
+.statsTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-600);
+  margin-bottom: var(--space-1);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Progress indicator */
+.progressIndicator {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  animation: slideInFromRight var(--transition-normal) ease-out;
+}
+
+.progressContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.progressBar {
+  width: 100px;
+  height: 6px;
+  background: var(--secondary-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-normal);
+}
+
+.progressText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Animations */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes compareAnimation {
+  0%, 100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+@keyframes swapAnimation {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+@keyframes sortedAnimation {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 12px var(--success-300);
+  }
+  50% {
+    transform: translateY(-6px);
+    box-shadow: 0 0 25px var(--success-400);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 12px var(--success-300);
+  }
+}
+
+@keyframes pivotAnimation {
+  0%, 100% {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px var(--accent-300);
+  }
+  50% {
+    transform: translateY(-8px);
+    box-shadow: 0 0 30px var(--accent-400);
+  }
+}
+
+@keyframes currentAnimation {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 0 15px var(--secondary-400);
+  }
+  50% {
+    transform: translateY(-4px);
+    box-shadow: 0 0 25px var(--secondary-500);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .arrayBar {
+    min-width: 6px;
+    max-width: 16px;
+  }
+  
+  .arrayContainer {
+    padding: var(--space-6);
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .histogram {
+    padding: var(--space-4);
+  }
+  
+  .arrayBar {
+    min-width: 5px;
+    max-width: 14px;
+  }
+  
+  .arrayContainer {
+    padding: var(--space-4);
+    min-height: 300px;
+  }
+  
+  .controlOverlay {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-bottom: var(--space-4);
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .controlContent {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  
+  .legend {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .arrayBar {
+    min-width: 4px;
+    max-width: 12px;
+  }
+  
+  .arrayContainer {
+    padding: var(--space-3);
+    min-height: 250px;
+    gap: 1px;
+  }
+  
+  .statsPanel {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    margin-top: var(--space-4);
+    width: 100%;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .progressIndicator {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-bottom: var(--space-4);
+    width: 100%;
+    max-width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .arrayInfo {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .arrayBar {
+    min-width: 3px;
+    max-width: 10px;
+  }
+  
+  .arrayContainer {
+    padding: var(--space-2);
+    min-height: 200px;
+  }
+  
+  .legend {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+  
+  .legendItem {
+    justify-content: center;
+  }
+  
+  .controlOverlay {
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  .statsPanel {
+    padding: var(--space-3);
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .arrayBar {
+    border-width: 2px;
+  }
+  
+  .arrayBar.comparing {
+    background: var(--warning-600);
+  }
+  
+  .arrayBar.swapping {
+    background: var(--error-600);
+  }
+  
+  .arrayBar.sorted {
+    background: var(--success-600);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .arrayBar,
+  .arrayContainer,
+  .controlOverlay,
+  .statsPanel,
+  .progressIndicator {
+    animation: none;
+    transition: none;
+  }
+  
+  .arrayBar:hover {
+    transform: none;
+  }
+  
+  .arrayBar.comparing,
+  .arrayBar.swapping,
+  .arrayBar.sorted,
+  .arrayBar.pivot,
+  .arrayBar.current {
+    animation: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.arrayBar:focus {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.histogram.loading {
+  pointer-events: none;
+}
+
+.histogram.loading .arrayContainer {
+  opacity: 0.7;
+}
+
+.histogram.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 4px solid var(--primary-200);
+  border-top: 4px solid var(--primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1000;
+}
+
+/* Completion celebration */
+.histogram.completed .arrayContainer {
+  animation: completionCelebration 2s ease-out;
+}
+
+@keyframes completionCelebration {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-2xl), 0 0 50px var(--success-300);
+  }
 }

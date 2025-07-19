@@ -1,15 +1,333 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    max-width: 100%;
-    max-height: 100%;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--background) 0%, var(--secondary-100) 100%);
+  position: relative;
 }
 
 .midsection {
-    max-height: 90vh;
-    display: flex;
-    /* justify-content: space-between; */
+  display: flex;
+  flex: 1;
+  position: relative;
+  padding-top: 70px; /* Account for fixed header */
+  min-height: calc(100vh - 70px);
 }
 
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 320px; /* Account for sidebar */
+  margin-right: 400px; /* Account for algo box */
+  transition: all var(--transition-normal);
+  position: relative;
+}
 
+.visualizationArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  position: relative;
+}
+
+/* Mobile menu overlay */
+.mobileMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.mobileMenuOverlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile sidebar toggle */
+.mobileSidebarToggle {
+  position: fixed;
+  top: 80px;
+  left: var(--space-4);
+  z-index: 1002;
+  display: none;
+  width: 48px;
+  height: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobileSidebarToggle:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  transform: scale(1.05);
+}
+
+.mobileSidebarToggle svg {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.mobileSidebarToggle:hover svg {
+  color: var(--primary-600);
+}
+
+/* Mobile algo box toggle */
+.mobileAlgoToggle {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 1002;
+  display: none;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+  border: none;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xl);
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobileAlgoToggle:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-2xl);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1400px) {
+  .mainContent {
+    margin-right: 350px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .mainContent {
+    margin-left: 280px;
+    margin-right: 320px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mainContent {
+    margin-left: 70px; /* Collapsed sidebar */
+    margin-right: 0;
+  }
+  
+  .visualizationArea {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 768px) {
+  .midsection {
+    flex-direction: column;
+    padding-top: 70px;
+  }
+  
+  .mainContent {
+    margin-left: 0;
+    margin-right: 0;
+    flex: 1;
+  }
+  
+  .visualizationArea {
+    padding: var(--space-2);
+    min-height: calc(100vh - 140px); /* Account for header and potential bottom panels */
+  }
+  
+  .mobileSidebarToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .mobileAlgoToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .visualizationArea {
+    padding: var(--space-1);
+  }
+  
+  .mobileSidebarToggle {
+    width: 44px;
+    height: 44px;
+    top: 75px;
+    left: var(--space-3);
+  }
+  
+  .mobileAlgoToggle {
+    width: 52px;
+    height: 52px;
+    bottom: var(--space-3);
+    right: var(--space-3);
+  }
+}
+
+/* Loading state */
+.container.loading {
+  pointer-events: none;
+}
+
+.container.loading::after {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  border: 4px solid var(--primary-200);
+  border-top: 4px solid var(--primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 9999;
+}
+
+/* Error state */
+.container.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-8);
+}
+
+.errorContent {
+  text-align: center;
+  max-width: 500px;
+}
+
+.errorTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--error-600);
+  margin-bottom: var(--space-4);
+}
+
+.errorMessage {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
+}
+
+.errorButton {
+  padding: var(--space-3) var(--space-6);
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.errorButton:hover {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .mainContent,
+  .mobileSidebarToggle,
+  .mobileAlgoToggle {
+    transition: none;
+  }
+  
+  .container.loading::after {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .mobileSidebarToggle,
+  .mobileAlgoToggle {
+    border-width: 2px;
+  }
+  
+  .mobileAlgoToggle {
+    background: var(--text-primary);
+  }
+}
+
+/* Focus styles */
+.mobileSidebarToggle:focus-visible,
+.mobileAlgoToggle:focus-visible,
+.errorButton:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .mobileSidebarToggle,
+  .mobileAlgoToggle,
+  .mobileMenuOverlay {
+    display: none;
+  }
+  
+  .mainContent {
+    margin: 0;
+  }
+  
+  .container {
+    background: white;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .visualizationArea {
+    min-height: calc(100vh - 70px);
+  }
+  
+  .mobileSidebarToggle {
+    top: 75px;
+  }
+}
+
+/* Large screens optimization */
+@media (min-width: 1600px) {
+  .mainContent {
+    margin-left: 350px;
+    margin-right: 450px;
+  }
+  
+  .visualizationArea {
+    padding: var(--space-6);
+  }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 2000px) {
+  .mainContent {
+    margin-left: 400px;
+    margin-right: 500px;
+  }
+  
+  .visualizationArea {
+    padding: var(--space-8);
+  }
+}

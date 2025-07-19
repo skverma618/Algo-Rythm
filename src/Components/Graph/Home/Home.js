@@ -31,14 +31,18 @@ export default function Home() {
     };
 
     const changeAlgo = (newalgo) => {
-        const newGrid = grid.slice();
-        for (let i = 0; i < newGrid.length; i++) {
-            for (let j = 0; j < newGrid[0].length; j++) {
-                newGrid[i][j].weight = 1;
+        // Only reset weights for algorithms that don't use them (BFS, DFS)
+        if (newalgo === "bfs" || newalgo === "dfs") {
+            const newGrid = grid.slice();
+            for (let i = 0; i < newGrid.length; i++) {
+                for (let j = 0; j < newGrid[0].length; j++) {
+                    newGrid[i][j].weight = 1;
+                }
             }
+            setgrid(newGrid);
+            changeaddweight(false);
         }
-        setgrid(newGrid);
-        changeaddweight(false);
+        // For Dijkstra, preserve existing weights and don't disable weight mode
         setalgo(newalgo);
     };
 
@@ -163,11 +167,12 @@ export default function Home() {
 
     const visualizebfs = () => {
         const [nodevisinorder, nodesinpath] = BFS(startNode, finishNode, grid);
+        const animationSpeed = 101 - speed; // Convert speed (1-100) to delay (100-1)
         for (let i = 0; i < nodevisinorder.length; i++) {
             if (i == nodevisinorder.length - 1) {
                 setTimeout(() => {
                     animateshortestpath(nodesinpath);
-                }, 10 * i);
+                }, animationSpeed * i);
                 return;
             } else {
                 setTimeout(() => {
@@ -175,7 +180,7 @@ export default function Home() {
                     document
                         .getElementById(`node-${node[0]}-${node[1]}`)
                         .classList.add(node_classes.nodevisited);
-                }, 10 * i);
+                }, animationSpeed * i);
             }
         }
     };
@@ -184,11 +189,12 @@ export default function Home() {
         console.log("hi");
         const [nodevisinorder, nodesinpath] = DFS(grid, startNode, finishNode);
         console.log(nodevisinorder);
+        const animationSpeed = 101 - speed; // Convert speed (1-100) to delay (100-1)
         for (let i = 0; i < nodevisinorder.length; i++) {
             if (i == nodevisinorder.length - 1) {
                 setTimeout(() => {
                     animateshortestpath(nodesinpath);
-                }, 10 * i);
+                }, animationSpeed * i);
                 return;
             } else {
                 setTimeout(() => {
@@ -200,7 +206,7 @@ export default function Home() {
                     nodeel.classList.remove(node_classes.nodevisited);
                     void nodeel.offsetWidth;
                     nodeel.classList.add(node_classes.nodevisited);
-                }, 10 * i);
+                }, animationSpeed * i);
             }
         }
     };
@@ -211,11 +217,12 @@ export default function Home() {
             startNode,
             finishNode
         );
+        const animationSpeed = 101 - speed; // Convert speed (1-100) to delay (100-1)
         for (let i = 0; i < nodevisinorder.length; i++) {
             if (i == nodevisinorder.length - 1) {
                 setTimeout(() => {
                     animateshortestpath(nodesinpath);
-                }, 10 * i);
+                }, animationSpeed * i);
                 return;
             } else {
                 setTimeout(() => {
@@ -227,7 +234,7 @@ export default function Home() {
                     nodeel.classList.remove(node_classes.nodevisited);
                     void nodeel.offsetWidth;
                     nodeel.classList.add(node_classes.nodevisited);
-                }, 10 * i);
+                }, animationSpeed * i);
             }
         }
     };
